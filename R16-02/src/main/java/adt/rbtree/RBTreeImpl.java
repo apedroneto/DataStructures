@@ -1,6 +1,7 @@
 package adt.rbtree;
 
 import adt.bst.BSTImpl;
+import adt.bst.BSTNode;
 import adt.bt.Util;
 import adt.rbtree.RBNode.Colour;
 
@@ -52,16 +53,57 @@ public class RBTreeImpl<T extends Comparable<T>> extends BSTImpl<T>
 	 * be BLACK.
 	 */
 	private boolean verifyChildrenOfRedNodes() {
-		// TODO Implement your code here
-		throw new UnsupportedOperationException("Not implemented yet!");
+		return verifyChildrenOfRedNodes((RBNode<T>) this.root);
+	}
+
+	private boolean verifyChildrenOfRedNodes(RBNode<T> node) {
+		boolean res = false;
+		if (node != null) {
+			if (node.getColour() == Colour.RED) {
+				RBNode<T> childLeft = (RBNode<T>) node.getLeft();
+				RBNode<T> childRight = (RBNode<T>) node.getRight();
+				
+				if (childLeft.getColour() == Colour.BLACK && childRight.getColour() == Colour.BLACK) {
+					res = this.verifyChildrenOfRedNodes(childLeft) && this.verifyChildrenOfRedNodes(childRight);
+				}
+			}
+		} else {
+			res = true;
+		}
+		return res;
 	}
 
 	/**
 	 * Verifies the black-height property from the root.
 	 */
 	private boolean verifyBlackHeight() {
-		// TODO Implement your code here
-		throw new UnsupportedOperationException("Not implemented yet!");
+		return verifyBlackHeight((RBNode<T>) this.root);
+	}
+	
+	private boolean verifyBlackHeight(RBNode<T> node) {
+		boolean res = false;
+		if (node != null) {
+			int blackHeightLeft = this.blackHeight((RBNode<T>) node.getLeft());
+			int blackHeightRight = this.blackHeight((RBNode<T>) node.getRight());
+			
+			res = blackHeightLeft == blackHeightRight;
+		}
+		return res;
+	}
+
+	protected int blackHeight(RBNode<T> node) {
+		int res = -1;
+		if (node != null) {
+			int blackHeightLeft = this.blackHeight((RBNode<T>) node.getLeft());
+			int blackHeightRight = this.blackHeight((RBNode<T>) node.getRight());
+			
+			res = Math.max(blackHeightLeft, blackHeightRight);
+			
+			if (node.getColour() == Colour.BLACK) {
+				res ++;
+			}
+		}
+		return res;
 	}
 
 	@Override
