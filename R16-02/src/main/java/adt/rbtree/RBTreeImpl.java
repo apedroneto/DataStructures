@@ -131,9 +131,9 @@ public class RBTreeImpl<T extends Comparable<T>> extends BSTImpl<T> implements R
             int comparator = node.getData().compareTo(element);
 
             if (comparator > 0) {
-               this.insert(element, (RBNode<T>) node.getLeft(), node);
+               this.insertRB(element, (RBNode<T>) node.getLeft(), node);
             } else if (comparator < 0) {
-               this.insert(element, (RBNode<T>) node.getRight(), node);
+               this.insertRB(element, (RBNode<T>) node.getRight(), node);
             }
          }
 
@@ -144,21 +144,21 @@ public class RBTreeImpl<T extends Comparable<T>> extends BSTImpl<T> implements R
    @SuppressWarnings("unchecked")
    @Override
    public RBNode<T>[] rbPreOrder() {
-	   	RBNode<T>[] preOrder = (RBNode<T>[]) new Comparable[this.size()];
-	   	this.rbPreOrder(this.root, preOrder, 0);
+	   	RBNode<T>[] preOrder = new RBNode[this.size()];
+	   	this.rbPreOrder((RBNode<T>) this.root, preOrder, 0);
 	   	return preOrder;
    }
 
-   private int rbPreOrder(BSTNode<T> node, RBNode<T>[] preOrder, int i) {
+   private int rbPreOrder(RBNode<T> node, RBNode<T>[] preOrder, int i) {
 	   	preOrder[i] = (RBNode<T>) node;
 		i++;
 
 		if (!node.getLeft().isEmpty()) {
-			i = rbPreOrder((BSTNode<T>) node.getLeft(), preOrder, i);
+			i = rbPreOrder((RBNode<T>) node.getLeft(), preOrder, i);
 		}
 
 		if (!node.getRight().isEmpty()) {
-			i = rbPreOrder((BSTNode<T>) node.getRight(), preOrder, i);
+			i = rbPreOrder((RBNode<T>) node.getRight(), preOrder, i);
 		}
 
 		return i;
@@ -166,7 +166,7 @@ public class RBTreeImpl<T extends Comparable<T>> extends BSTImpl<T> implements R
 
 // FIXUP methods
    protected void fixUpCase1(RBNode<T> node) {
-	   	if (this.isEmpty()) {
+	   	if (node.getParent() == null) {
 	   		node.setColour(Colour.BLACK);
 	   	} else {
 	   		this.fixUpCase2(node);
