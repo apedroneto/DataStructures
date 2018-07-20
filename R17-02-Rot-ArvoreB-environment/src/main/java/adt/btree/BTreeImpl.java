@@ -117,9 +117,44 @@ public class BTreeImpl<T extends Comparable<T>> implements BTree<T> {
 
 	@Override
 	public void insert(T element) {
-		// TODO Implement your code here
-		throw new UnsupportedOperationException("Not Implemented yet!");
-
+		//verificar elemento a ser inserido (se é valido e se ainda não existe na arvore)
+		if (element != null && this.search(element) == null) {
+			//insersão para a arvore vazia
+			if (this.isEmpty()) {
+				this.root.addElement(element);
+			}
+			//insersão para a arvore não vazia
+			else {
+				//encontra o nó onde o elemento pode ser adicionado e o adiciona (sempre um nó folha)
+				BNode<T> nodeInsertion = nodeInsertion(element, this.root);
+				//verifica se o nó está com o numero de elementos maior que a capacidade
+				if (nodeInsertion.getOrder() < nodeInsertion.getElements().size()) {
+					
+				}
+			}
+		}
+	}
+	
+	private BNode<T> nodeInsertion(T element, BNode<T> node) {
+		BNode<T> res = node;
+		
+		if (!node.isLeaf()) {
+			
+			int i = 0;
+			LinkedList<T> elements = node.getElements();
+			while (i < elements.size() && element.compareTo(elements.get(i)) > 1)
+				i++;
+			
+			if (i == elements.size()) {
+				i --;
+			}
+			res = this.nodeInsertion(element, node.getChildren().get(i));
+			
+		} else {
+			node.addElement(element);
+		}
+		
+		return res;
 	}
 
 	private void split(BNode<T> node) {

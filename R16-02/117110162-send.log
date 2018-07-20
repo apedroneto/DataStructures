@@ -17,3 +17,13 @@
   <level>FINE</level>
   <message>File 117110162-ANDERSON FELLIPE DE VASCONCELOS VIDAL.zip was received. It was sent by ANDERSON FELLIPE DE VASCONCELOS VIDAL from IP 192.168.131.25</message>
 </record>
+</log>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE log SYSTEM "logger.dtd">
+<log>
+<record>
+  <date>2018-07-17T15:43:46.429-0300</date>
+  <logger>ANDERSON FELLIPE DE VASCONCELOS VIDAL</logger>
+  <level>FINE</level>
+  <message>File 117110162-ANDERSON FELLIPE DE VASCONCELOS VIDAL.zip was received. It was sent by ANDERSON FELLIPE DE VASCONCELOS VIDAL from IP 192.168.131.25</message>
+</record>
