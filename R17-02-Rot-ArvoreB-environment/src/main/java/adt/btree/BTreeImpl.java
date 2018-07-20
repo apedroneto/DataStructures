@@ -127,9 +127,9 @@ public class BTreeImpl<T extends Comparable<T>> implements BTree<T> {
 			else {
 				//encontra o nó onde o elemento pode ser adicionado e o adiciona (sempre um nó folha)
 				BNode<T> nodeInsertion = nodeInsertion(element, this.root);
-				//verifica se o nó está com o numero de elementos maior que a capacidade
-				if (nodeInsertion.getOrder() < nodeInsertion.getElements().size()) {
-					
+				//verifica overflow da página
+				if (nodeInsertion.getOrder() <= nodeInsertion.getElements().size()) {
+					this.split(nodeInsertion);
 				}
 			}
 		}
@@ -145,9 +145,6 @@ public class BTreeImpl<T extends Comparable<T>> implements BTree<T> {
 			while (i < elements.size() && element.compareTo(elements.get(i)) > 1)
 				i++;
 			
-			if (i == elements.size()) {
-				i --;
-			}
 			res = this.nodeInsertion(element, node.getChildren().get(i));
 			
 		} else {
@@ -158,13 +155,51 @@ public class BTreeImpl<T extends Comparable<T>> implements BTree<T> {
 	}
 
 	private void split(BNode<T> node) {
-		// TODO Implement your code here
-		throw new UnsupportedOperationException("Not Implemented yet!");
+		int midIndex = node.getElements().size() / 2;
+		T element = node.getElementAt(midIndex);
+		
+		this.promote(node);
+		
+		BNode<T> newPage = new BNode<T>(node.getOrder());
+		
+		LinkedList<T> elements = node.getElements();
+		for (int i = midIndex + 1; i < elements.size(); i++) {
+			newPage.addElement(elements.remove(i));
+		}
+		
+		node.removeElement(midIndex);
+		
+		BNode<T> parent;
+		if (node.getParent() != null) {
+			newPage.setParent(node.getParent());
+			
+			parent = node.getParent();
+			elements = parent.getElements();
+		} else {
+			newPage.setParent(this.root);
+			
+			elements = this.root.getElements();
+			parent = this.root;
+		}
+		
+		if (elements.get(0).compareTo(element) > 0) {
+			parent.addChild(0, newPage);
+		} else {
+			parent.addChild(parent.getChildren().size(), newPage);
+		}
 	}
 
 	private void promote(BNode<T> node) {
-		// TODO Implement your code here
-		throw new UnsupportedOperationException("Not Implemented yet!");
+		int midIndex = node.getElements().size() / 2;
+		T element = node.getElementAt(midIndex);
+		
+		if (node.getParent() != null) {
+			node.getParent().addElement(element);
+		} else {
+			BNode<T> newPage = new BNode<T>(node.getOrder());
+			newPage.addElement(element);
+			this.root = newPage;
+		}
 	}
 
 	// NAO PRECISA IMPLEMENTAR OS METODOS ABAIXO
