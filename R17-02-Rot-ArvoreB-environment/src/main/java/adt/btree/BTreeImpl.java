@@ -34,8 +34,8 @@ public class BTreeImpl<T extends Comparable<T>> implements BTree<T> {
 		
 		if (!node.isEmpty()) {
 			while (!node.isLeaf()) {
-				height += 1;
-				node.getChildren().get(0);
+				height ++;
+				node = node.getChildren().getFirst();
 			}
 			height += 1;
 		}
@@ -193,7 +193,8 @@ public class BTreeImpl<T extends Comparable<T>> implements BTree<T> {
 				for (int i = node.getChildren().size() - 1; i > middleInx; i--) {
 					node.removeChild(node.getChildren().get(i));
 				}
-			}			
+			}
+			
 			this.root = newPageRoot;
 		}
 		// caso nó não seja um root
@@ -203,7 +204,7 @@ public class BTreeImpl<T extends Comparable<T>> implements BTree<T> {
 			int idxPromote = parentPromote.indexOfChild(node);
 			parentPromote.addChild(idxPromote + 1, newPage);
 			
-			//realocando filhos
+			// Realocando filhos
 			if (node.getChildren().size() > 0) {
 				int insec = 0;
 				for (int i = middleInx + 1; i < node.getChildren().size(); i++) {

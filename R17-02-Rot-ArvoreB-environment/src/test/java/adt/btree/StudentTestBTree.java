@@ -68,5 +68,58 @@ public class StudentTestBTree {
 		assertEquals("[[22], [14, 19], [1, 8], [16, 18], [20], [30], [26], [34]]",
 				Arrays.toString(tree1.depthLeftOrder()));
 	}
+	
+	@Test
+	public void testHeightWar() {
+		assertEquals(-1, tree1.height());
+		tree1.insert(1);
+		assertEquals(0, tree1.height());
+		tree1.insert(8);
+		assertEquals(0, tree1.height());
+		tree1.insert(14);
+		assertEquals(0, tree1.height());
+		tree1.insert(22);
+		assertEquals(1, tree1.height());
+		tree1.insert(26);
+		assertEquals(1, tree1.height());
+		tree1.insert(30);
+		assertEquals(1, tree1.height());
+		tree1.insert(34);
+		assertEquals(1, tree1.height());
+		tree1.insert(16);
+		assertEquals(1, tree1.height());
+		tree1.insert(20);
+		assertEquals(1, tree1.height());
+		tree1.insert(18);
+		assertEquals(1, tree1.height());
+		tree1.insert(19);
+		assertEquals(2, tree1.height());
+	}
 
+	@Test
+	public void testSizeWar() {
+		assertEquals(0, tree1.size());
+		tree1.insert(1);
+		assertEquals(1, tree1.size());
+		tree1.insert(8);
+		assertEquals(2, tree1.size());
+		tree1.insert(14);
+		assertEquals(3, tree1.size());
+		tree1.insert(22);
+		assertEquals(4, tree1.size());
+		tree1.insert(26);
+		assertEquals(5, tree1.size());
+		tree1.insert(30);
+		assertEquals(6, tree1.size());
+		tree1.insert(34);
+		assertEquals(7, tree1.size());
+		tree1.insert(16);
+		assertEquals(8, tree1.size());
+		tree1.insert(20);
+		assertEquals(9, tree1.size());
+		tree1.insert(18);
+		assertEquals(10, tree1.size());
+		tree1.insert(19);
+		assertEquals(11, tree1.size());
+	}
 }
