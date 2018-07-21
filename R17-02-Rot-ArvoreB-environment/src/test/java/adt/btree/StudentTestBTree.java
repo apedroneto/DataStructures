@@ -50,5 +50,23 @@ public class StudentTestBTree {
 		tree1.insert(18);
 		assertEquals(1, tree1.size());
 	}
+	
+	@Test
+	public void testWar() {
+		tree1.insert(1);
+		tree1.insert(8);
+		tree1.insert(14);
+		tree1.insert(22);
+		tree1.insert(26);
+		tree1.insert(30);
+		tree1.insert(34);
+		tree1.insert(16);
+		tree1.insert(20);
+		tree1.insert(18);
+		tree1.insert(19);
+		
+		assertEquals("[[22], [14, 19], [1, 8], [16, 18], [20], [30], [26], [34]]",
+				Arrays.toString(tree1.depthLeftOrder()));
+	}
 
 }

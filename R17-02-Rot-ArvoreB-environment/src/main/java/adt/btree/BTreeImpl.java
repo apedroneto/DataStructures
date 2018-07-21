@@ -1,6 +1,8 @@
 package adt.btree;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 public class BTreeImpl<T extends Comparable<T>> implements BTree<T> {
 
@@ -28,17 +30,14 @@ public class BTreeImpl<T extends Comparable<T>> implements BTree<T> {
 	}
 
 	private int height(BNode<T> node) {
-		int height = 0;
+		int height = -1;
 		
-		if (node != null) {
-			if (!node.isEmpty()) {
-				while (node.getChildren().size() > 0) {
-					height += 1;
-					node = node.getChildren().get(0);
-				}
+		if (!node.isEmpty()) {
+			while (!node.isLeaf()) {
+				height += 1;
+				node.getChildren().get(0);
 			}
-		} else {
-			height = -1;
+			height += 1;
 		}
 		
 		return height;
@@ -47,18 +46,23 @@ public class BTreeImpl<T extends Comparable<T>> implements BTree<T> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public BNode<T>[] depthLeftOrder() {
-		BNode<T>[] res = new BNode[this.size()];
+		List<BNode<T>> res = new ArrayList<BNode<T>>();
 		if (!this.isEmpty())
-			this.depthLeftOrder(this.root, res, 0);
-		return res;
+			this.depthLeftOrder(this.root, res);
+		
+		BNode<T>[] array = new BNode[res.size()];
+		for (int i = 0; i < res.size(); i++) {
+			array[i] = res.get(i);
+		}
+		
+		return array;
 	}
 
-	private void depthLeftOrder(BNode<T> node, BNode<T>[] res, int idx) {
-		res[idx] = node;
-		idx ++;
-		if (node.getChildren().size() > 0) {
-			for (int i = 0; i < node.getChildren().size(); i++) {
-				this.depthLeftOrder(node.getChildren().get(i), res, idx);
+	private void depthLeftOrder(BNode<T> node, List<BNode<T>> res) {
+		res.add(node);
+		if (!node.isLeaf()) {
+			for (BNode<T> n : node.getChildren()) {
+				depthLeftOrder(n, res);
 			}
 		}
 	}
@@ -117,89 +121,93 @@ public class BTreeImpl<T extends Comparable<T>> implements BTree<T> {
 
 	@Override
 	public void insert(T element) {
-		//verificar elemento a ser inserido (se √© valido e se ainda n√£o existe na arvore)
-		if (element != null && this.search(element) == null) {
-			//insers√£o para a arvore vazia
+		if (element != null) {
+			//caso 1: arvore vazia
 			if (this.isEmpty()) {
-				this.root.addElement(element);
-			}
-			//insers√£o para a arvore n√£o vazia
+				this.root.addElement(element);				
+			} 
+			//caso 2: arvore n„o vazia
 			else {
-				//encontra o n√≥ onde o elemento pode ser adicionado e o adiciona (sempre um n√≥ folha)
-				BNode<T> nodeInsertion = nodeInsertion(element, this.root);
-				//verifica overflow da p√°gina
-				if (nodeInsertion.getOrder() <= nodeInsertion.getElements().size()) {
-					this.split(nodeInsertion);
+				BNode<T> node = this.root;
+				while (!node.isLeaf()) {
+					int idx = 0;
+					while (idx < node.getElements().size() && element.compareTo(node.getElementAt(idx)) > 0) {
+						idx ++;
+					}
+					
+					node = node.getChildren().get(idx);
+				}
+				
+				if (node.isFull()) {
+					node.addElement(element);
+					this.split(node);
+				} else {
+					node.addElement(element);
 				}
 			}
 		}
 	}
-	
-	private BNode<T> nodeInsertion(T element, BNode<T> node) {
-		BNode<T> res = node;
-		
-		if (!node.isLeaf()) {
-			
-			int i = 0;
-			LinkedList<T> elements = node.getElements();
-			while (i < elements.size() && element.compareTo(elements.get(i)) > 1)
-				i++;
-			
-			res = this.nodeInsertion(element, node.getChildren().get(i));
-			
-		} else {
-			node.addElement(element);
-		}
-		
-		return res;
-	}
 
 	private void split(BNode<T> node) {
-		int midIndex = node.getElements().size() / 2;
-		T element = node.getElementAt(midIndex);
+		// resgatando indice do meio e o elemento do meio
+		int middleInx = node.getElements().size() / 2;
 		
-		this.promote(node);
+		// criando nÛ onde seram armazenados os elementos maiores que o middle
+		BNode<T> newPage = new BNode<T>(this.root.getOrder());
 		
-		BNode<T> newPage = new BNode<T>(node.getOrder());
-		
-		LinkedList<T> elements = node.getElements();
-		for (int i = midIndex + 1; i < elements.size(); i++) {
-			newPage.addElement(elements.remove(i));
+		// alocando os elementos maiores que o middle para o newPage
+		for (int i = middleInx + 1; i < node.getElements().size(); i ++) {
+			newPage.addElement(node.getElementAt(i));
 		}
 		
-		node.removeElement(midIndex);
+		// setando o parent do novo nÛ
+		newPage.setParent(node.getParent());
 		
-		BNode<T> parent;
-		if (node.getParent() != null) {
-			newPage.setParent(node.getParent());
-			
-			parent = node.getParent();
-			elements = parent.getElements();
-		} else {
-			newPage.setParent(this.root);
-			
-			elements = this.root.getElements();
-			parent = this.root;
-		}
+		this.promote(node, newPage);
 		
-		if (elements.get(0).compareTo(element) > 0) {
-			parent.addChild(0, newPage);
-		} else {
-			parent.addChild(parent.getChildren().size(), newPage);
+		// removendo os elementos que foram copiados
+		for (T e : newPage.getElements()) {
+			node.removeElement(e);
 		}
 	}
 
-	private void promote(BNode<T> node) {
-		int midIndex = node.getElements().size() / 2;
-		T element = node.getElementAt(midIndex);
+	private void promote(BNode<T> node, BNode<T> newPage) {
+		// resgatando indice do meio e o elemento do meio
+		int middleInx = node.getElements().size() / 2;
+		T elementPromote = node.getElementAt(middleInx);
 		
-		if (node.getParent() != null) {
-			node.getParent().addElement(element);
-		} else {
-			BNode<T> newPage = new BNode<T>(node.getOrder());
-			newPage.addElement(element);
-			this.root = newPage;
+		// caso o nÛ seja o root
+		if (node.getParent() == null) {
+			BNode<T> newPageRoot = new BNode<T>(this.root.getOrder());
+			newPageRoot.addElement(elementPromote);
+			newPageRoot.addChild(0, node);
+			newPageRoot.addChild(1, newPage);
+			
+			//realocando filhos
+			if (node.getChildren().size() > 0) {
+				newPage.addChild(0, node.getChildren().get(middleInx + 1));
+				newPage.addChild(1, node.getChildren().get(middleInx + 2));
+				node.removeChild(node.getChildren().get(middleInx + 2));
+				node.removeChild(node.getChildren().get(middleInx + 1));
+			}
+			
+			this.root = newPageRoot;
 		}
+		// caso nÛ n„o seja um root
+		else {
+			BNode<T> parentPromote = node.getParent();
+			parentPromote.addElement(elementPromote);
+			int idxPromote = parentPromote.indexOfChild(node);
+			parentPromote.addChild(idxPromote + 1, newPage);
+			
+			// caso o parent fique cheio depois da adiÁ„o do novo elemento
+			if (parentPromote.getElements().size() == this.order) {
+				this.split(parentPromote);
+			}
+		}
+		
+		// Remove o elemento promovido do nÛ
+		node.removeElement(middleInx);
 	}
 
 	// NAO PRECISA IMPLEMENTAR OS METODOS ABAIXO
