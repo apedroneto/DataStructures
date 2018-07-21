@@ -185,12 +185,15 @@ public class BTreeImpl<T extends Comparable<T>> implements BTree<T> {
 			
 			//realocando filhos
 			if (node.getChildren().size() > 0) {
-				newPage.addChild(0, node.getChildren().get(middleInx + 1));
-				newPage.addChild(1, node.getChildren().get(middleInx + 2));
-				node.removeChild(node.getChildren().get(middleInx + 2));
-				node.removeChild(node.getChildren().get(middleInx + 1));
-			}
-			
+				int insec = 0;
+				for (int i = middleInx + 1; i < node.getChildren().size(); i++) {
+					newPage.addChild(insec, node.getChildren().get(i));
+					insec ++;
+				}
+				for (int i = node.getChildren().size() - 1; i > middleInx; i--) {
+					node.removeChild(node.getChildren().get(i));
+				}
+			}			
 			this.root = newPageRoot;
 		}
 		// caso nó não seja um root
@@ -199,6 +202,18 @@ public class BTreeImpl<T extends Comparable<T>> implements BTree<T> {
 			parentPromote.addElement(elementPromote);
 			int idxPromote = parentPromote.indexOfChild(node);
 			parentPromote.addChild(idxPromote + 1, newPage);
+			
+			//realocando filhos
+			if (node.getChildren().size() > 0) {
+				int insec = 0;
+				for (int i = middleInx + 1; i < node.getChildren().size(); i++) {
+					newPage.addChild(insec, node.getChildren().get(i));
+					insec ++;
+				}
+				for (int i = node.getChildren().size() - 1; i > middleInx; i--) {
+					node.removeChild(node.getChildren().get(i));
+				}
+			}
 			
 			// caso o parent fique cheio depois da adição do novo elemento
 			if (parentPromote.getElements().size() == this.order) {
