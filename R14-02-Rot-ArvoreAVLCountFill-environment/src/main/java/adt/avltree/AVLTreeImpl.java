@@ -135,31 +135,69 @@ public class AVLTreeImpl<T extends Comparable<T>> extends BSTImpl<T> implements
 		return res;
 	}
 	
+	protected void rotateLeft(BSTNode<T> node) {
+		BSTNode<T> noDireito = (BSTNode<T>) node.getRight();
+
+		node.setRight(noDireito.getLeft());
+
+		noDireito.getLeft().setParent(node);
+		noDireito.setLeft(node);
+		noDireito.setParent(node.getParent());
+		node.setParent(noDireito);
+
+		if (node != this.getRoot()) {
+			if (noDireito.getParent().getLeft() == node) {
+				noDireito.getParent().setLeft(noDireito);
+			} else {
+				noDireito.getParent().setRight(noDireito);
+			}
+		} else {
+				this.root = (BSTNode<T>) noDireito;
+		}
+	}
+	
+	protected void rotateRight(BSTNode<T> node) {
+		BSTNode<T> noEsquerdo = (BSTNode<T>) node.getLeft();
+
+		node.setLeft(noEsquerdo.getRight());
+
+		noEsquerdo.getRight().setParent(node);
+		noEsquerdo.setRight(node);
+		noEsquerdo.setParent(node.getParent());
+		node.setParent(noEsquerdo);
+
+		if (node != this.getRoot()) {
+			if (noEsquerdo.getParent().getLeft() == node) {
+				noEsquerdo.getParent().setLeft(noEsquerdo);
+			} else {
+				noEsquerdo.getParent().setRight(noEsquerdo);
+			}
+		} else {
+			this.root = (BSTNode<T>) noEsquerdo;
+		}
+	}
+	
 	// AUXILIARY
 	protected void rebalance(BSTNode<T> node) {
 		if (node != null && !node.isEmpty()) {
 			int balance = this.calculateBalance(node);
 			if (Math.abs(balance) > 1) {
 				int caseBalance = this.caseReBalance(node, balance);
-				BSTNode<T> aux;
-				
-				if (caseBalance == 0) {
-					aux = Util.rightRotation(node);
-					
-				} else if (caseBalance == 1) {
-					aux = Util.leftRotation(node);
-					
-				} else if (caseBalance == 2) {
-					node.setLeft(Util.leftRotation((BSTNode<T>) node.getLeft()));
-					aux = Util.rightRotation(node);
-					
-				} else {
-					node.setRight(Util.rightRotation((BSTNode<T>) node.getRight()));
-					aux = Util.leftRotation(node);
-				}
-				
-				if (aux.getParent() == null) {
-					this.root = aux;
+				switch(caseBalance) {
+				case 0:
+					this.rotateRight(node);
+					break;
+				case 1:
+					this.rotateLeft(node);
+					break;
+				case 2:
+					this.rotateLeft((BSTNode<T>) node.getLeft());
+					this.rotateRight(node);
+					break;
+				case 3:
+					this.rotateRight((BSTNode<T>) node.getRight());
+					this.rotateLeft(node);
+					break;
 				}
 			}
 		}
